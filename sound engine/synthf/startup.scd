@@ -116,7 +116,7 @@ wt = signal.asWavetable;
 );
 (
 ~note=21;
-~note10=5;
+~note10=10;
 (
 {
 var nn=1.neg;
@@ -426,7 +426,7 @@ TempoClock.default.tempo_(0.01);
 Pbind(\instrument, \synth,
 \dur, Pseq(~dur ,inf),\s_size,Pfunc { ~s_size }, \lowend,Pfunc { ~lowend }, \room,Pfunc { ~room },
 \gain,Pfunc { ~gain }, \sc, Pfunc { ~sc },\drive, Pfunc { ~drive },
-\au,Pseq([0,4,2,3,1],inf),\sb,Pseq(~lseq,inf),
+\au,Pseq([0,1,4,3,6,5,9],inf),\sb,Pseq(~lseq,inf),
 \c, Pfunc { ~c },\mix, Pfunc{~mix},\rect,Pfunc{~rect},
 \az, Pseries(0, Pfunc{~incr1}, inf).collect(_.wrap(pi.neg, pi)),
 \el, Pseries(0, Pfunc{~incr2}, inf).collect(_.wrap(0.5pi.neg, 0.5pi)),
