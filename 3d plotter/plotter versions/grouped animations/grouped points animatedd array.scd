@@ -104,11 +104,6 @@ SynthDef.new(\player,{
 }
 )
 
-//Server.freeAll
-//smoothing
-//az1 = az1 + (targetAz1 - az1) * 0.1;
-//el1 = el1 + (targetEl1 - el1) * 0.1;
-
 //////////////////////////////////////////////////////////////////////animation array out
 (
 ({
@@ -197,7 +192,7 @@ az_3=0; el_3=0;
 az_4=0; el_4=0;
 az_7=0; el_7=0;
 az_6=0; el_6=0;
-data = []; dota=[]; pla = 0;
+ pla = 0;
 
 (
 {
@@ -245,7 +240,7 @@ sph_11=Spherical(1/scale2,(az_1+angle11).wrap(pi.neg,pi),(el_1+angle11).wrap((pi
 
 };
 
-~az=~az++azimuth;
+~azimuth=~azimuth++azimuth;
 angle11=(angle11+(2pi-(2pi/s))).wrap(0,2pi);
 
 };
@@ -299,7 +294,7 @@ sph_22=Spherical(1/scale2,(az_2+angle11).wrap(pi.neg,pi),(el_2+angle11).wrap((pi
 
 };
 
-~el=~el++elevation;
+~elevation=~elevation++elevation;
 angle11=(angle11+(2pi-(2pi/s))).wrap(0,2pi);
 
 };
@@ -539,29 +534,35 @@ az6=0;el6=0;
 );
 (
 ~magxb = ~magx.collect { |val, i|
-theta = ~az[i];
-phi = ~el[i];
+theta = ~azimuth[i];
+phi = ~elevation[i];
 wave = amp*sin((waveFreq * theta) + (waveFreq * phi )- waveSpeed);
 val * wave;
 };
 ~magyb = ~magy.collect { |val, i|
-theta = ~az[i];
-phi = ~el[i];
+theta = ~azimuth[i];
+phi = ~elevation[i];
 wave = amp*sin((waveFreq * theta) + (waveFreq * phi )- waveSpeed);
 val * wave;
 };
 ~magzb = ~magz.collect { |val, i|
-theta = ~az[i];
-phi = ~el[i];
+theta = ~azimuth[i];
+phi = ~elevation[i];
 wave = amp*sin((waveFreq * theta) + (waveFreq * phi )- waveSpeed);
 val * wave;
 };
 );
 //~el=~el+mod_el;
-~magx=~magx.wrap(~magx*(4/5),~magx);
-~magy=~magx.wrap(~magz*(4/5),~magx);
-~magy=~magx.wrap(~magz*(4/5),~magx);
-~el=~el.wrap((pi/16).neg,(pi/16));
+(~count.[0]*~count.[1]*~count.[2]*~count.[3]*~count.[4]*~count.[5]).do{
+az=~azimuth.[pla];
+el=~elevation.[pla]+mod_el;
+mag=(Cartesian(~magx.[pla],~magy.[pla],~magz.[pla]).rho)/2.sqrt;
+pla=pla+1;
+sph=Spherical(mag.wrap(mag*(4/5),mag),az,el.wrap((pi/16).neg,(pi/16))).asCartesian;
+sph=sph.rotateYZ(0.5pi).asSpherical;
+~az=~az++[sph.theta];
+~el=~el++[sph.phi];
+};
 //mk=(mk+(1200-(1200/1.6180339887499))).wrap(0,1200);
 (1/8).wait;
 };};

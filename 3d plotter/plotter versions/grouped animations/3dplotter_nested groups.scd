@@ -128,7 +128,7 @@ Out.kr(~controlBusz.index, (SinOsc.kr(f3,f3.reciprocal*2pi,f3.reciprocal)));
 
 Routine({loop{
 	~thread.set(\cor,~vertice.rand);
-        (0.01).wait; // frame duration
+        (0.1).wait; // frame duration
 };
 }).play;
 )
@@ -164,16 +164,16 @@ az=~az.[n];el=~el.[n];
 //mag=(Cartesian(0,0,~magz.[n]).rho/(2.sqrt));
 ///complex spherical harmonics
 ///mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt))+(Cartesian(~qx.[n],~qy.[n],0).rho/(2.sqrt));
+//mag=mag.wrap(mag*(4/5),mag);
 
 ///cloud assignment and distortion
 protaz=(az + r_az).wrap(pi.neg,pi);
 protel=(el + r_el).wrap(0.5pi.neg,0.5pi);
 point = Spherical(diameter*mag,protaz,protel).asCartesian;
 
-///////use fixed rotations for vanishing points and animated for contnious frame rotation
-// rotation
-point = Cartesian(point.x,point.y,point.z).rotateYZ(rx).rotateXZ(ry).rotateXY(rz);
-
+///rotations
+point=point.rotateYZ(rx).rotateXZ(ry).rotateXY(rz);
+point=point.rotateYZ(0.25pi);
 
 plane=Complex(point.x,point.y);
 //////remaping
@@ -268,7 +268,7 @@ r_el = r_el + 0;
 //ry = ry + 0.05;
 //rz = 0;
 ///grouped animation
-rx=0.5pi;
+rx=0;
 ry=(ry + ~rotation).wrap(0,2pi);
 rz=0;
 {v.refresh}.defer;
