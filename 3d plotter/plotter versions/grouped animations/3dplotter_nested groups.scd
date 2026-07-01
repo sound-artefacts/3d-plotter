@@ -1,0 +1,279 @@
+///thread tools
+
+//////thread sequencer/routine
+({
+var n=1.neg;
+~nseq=8.collect{2.rand};
+}.defer);
+
+/////thread animation routine based on image data
+/*(
+Routine({loop{
+	var n=1.neg,a,b,c,d,p;
+	~fsize.do{
+~lseq=~vertices.collect{
+n=n+1;
+p=Cartesian(1,~cx.[n],~cy.[n],~cz.[n]);
+a=if( (p.x > 0.4),1,0);
+b=if( (p.y > 0.4),1,0);
+c=if( (p.z > 0.4),1,0);
+d=a*b*c;
+};
+
+        (1/2).wait; // frame duration
+};
+(120).wait}
+}).play;
+)*/
+
+/////
+//thread/line as elevation wave with 0 at azimuth phase,as routine based on image data
+/*(
+Routine({loop{
+	var n=1.neg,el,az,p;
+	~lseq=[];
+n=0;
+	~fsize.do{
+~vertices.do{
+p=Cartesian(1,~cx.[n],~cy.[n],~cz.[n]).asSpherical;
+el=p.phi;
+~lseq=~lseq++[el];
+n=n+1;
+az=p.theta;
+ (az).wait;
+};
+(1/8).wait;
+};
+(120).wait}
+}).play;
+)*/
+
+//////l-system thread
+({
+var dict = IdentityDictionary[\A -> "AB", \B -> "A"];
+//These are the production rules of the L-system
+var word = "A";
+var string_temp = "";
+var iter = 16;
+//These are diction for the mapping of the alphabet to "artistic" parameters: degrees in a scale, beat occurrence, etc.
+var dictnotes = IdentityDictionary[\A ->0, \B -> 1];  ///amount of 0 in A (array), is the value of Rest(A) for silent events, eg. if A=[0,0,0] then Rest(3)
+ ~lseq=[];
+//This iteration generates the system recursively
+iter.do({
+word.asArray.do({|i|string_temp = string_temp ++ dict[i.asSymbol];});
+word = string_temp;string_temp = "";});
+word.postln;
+//Here we map the final system to the parameters as above
+word.do({|i| ~lseq = ~lseq ++ dictnotes[i.asSymbol];});
+~lseq.postln;
+~lseq.size;////check for sequence size >= vertices count
+}.value);
+
+//////simple sequence
+(
+~lseq=[];
+2000.do{~lseq=~lseq++[1]};
+)
+//////////////fitering/threading/ image based
+(
+{
+var  n=1.neg,p,a,b,c,d;
+////modulation random nested filtering
+//1.do{~lseq=~lseq*~lseq.size.collect{2.rand}};
+////image based filtering
+~lseq=~lseq.size.collect{
+n=n+1;
+p=Spherical(1,~az_im.[n],~el_im.[n]);
+a=if( (p.x > 0.4),1,0);
+b=if( (p.y > 0.4),1,0);
+c=if( (p.z > 0.4),1,0);
+d=a*b*c;
+}
+}.defer
+);
+////thread automaton
+(
+s.options.numWireBufs = 1024*16;
+s.options.numOutputBusChannels=4;
+s.options.numInputBusChannels=0;
+s.options.memSize = 8192*64;
+s.options.blockSize = 64;
+s.options.maxNodes = 1024 * 8;
+s.boot;
+)
+(
+~controlBusx = Bus.control(s, 1);
+~controlBusy = Bus.control(s, 1);
+~controlBusz = Bus.control(s, 1);
+);
+(
+SynthDef.new(\coo,{
+			arg cor=0;
+			var p,az,el,f1,f2,f3;
+
+az=Select.kr(cor,~az_im);
+el=Select.kr(cor,~el_im);
+p=Spherical(56,az,el);
+f1=2.pow(p.x.round(1)/56);
+f2=2.pow(p.y.round(1)/56);
+f3=2.pow(p.x.round(1)/56);
+Out.kr(~controlBusx.index, (SinOsc.kr(f1,f1.reciprocal*2pi,f1.reciprocal)));
+Out.kr(~controlBusy.index, (SinOsc.kr(f2,f2.reciprocal*2pi,f2.reciprocal)));
+Out.kr(~controlBusz.index, (SinOsc.kr(f3,f3.reciprocal*2pi,f3.reciprocal)));
+
+}).add;
+	)
+(
+~thread=Synth(\coo);
+
+Routine({loop{
+	~thread.set(\cor,~vertice.rand);
+        (0.01).wait; // frame duration
+};
+}).play;
+)
+////plotter
+(
+var w, u,size=1000,diameter=300,n=0,m=0,k=0;
+var r_az = 0.0,r_el = 0.0,az,el,cp,protaz,protel;
+var point,perspective,dist=600,mag=1;
+var rx = 0.0,ry = 0.0,rz = 0.0;
+var plane,pointx,pointy;
+var d_o=2,lined=5,run = true;
+
+w = Window("3d Plotter", Rect(100,100,size,size));
+v = UserView(w, w.view.bounds).background_(Color.black);
+
+v.drawFunc = {
+///scale drawing
+Pen.translate(v.bounds.width/2,v.bounds.height/2);
+///Pen.scale(0.5, 2);
+///Pen.moveTo(0@0);
+//~vertice=20;  ////solide vertices cound
+//~vertice=~coo;   ///count from distributions points
+~vertice=(~count.[0]*~count.[1]*~count.[2]*~count.[3]*~count.[4]*~count.[5]);///count from nested arrays
+~point_cloud=[];
+n=0;
+//~lseq=((~controlBusx.getSynchronous*(1/(1+~controlBusz.getSynchronous)))+
+//(~controlBusy.getSynchronous*(1/(1+~controlBusz.getSynchronous))));
+
+(~vertice).do {
+az=~az.[n];el=~el.[n];
+///spherical harmonics
+//mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt));
+//mag=(Cartesian(0,0,~magz.[n]).rho/(2.sqrt));
+///complex spherical harmonics
+///mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt))+(Cartesian(~qx.[n],~qy.[n],0).rho/(2.sqrt));
+
+///cloud assignment and distortion
+protaz=(az + r_az).wrap(pi.neg,pi);
+protel=(el + r_el).wrap(0.5pi.neg,0.5pi);
+point = Spherical(diameter*mag,protaz,protel).asCartesian;
+
+///////use fixed rotations for vanishing points and animated for contnious frame rotation
+// rotation
+point = Cartesian(point.x,point.y,point.z).rotateYZ(rx).rotateXZ(ry).rotateXY(rz);
+
+
+plane=Complex(point.x,point.y);
+//////remaping
+cp=Polar(point.z,plane.theta);
+cp=point;
+////////////////////perspective
+perspective = dist / (dist + point.z + (dist/2));///remove (dist/2) for no depth
+////weak perspective
+//perspective = 1 - (point.z * 0.001);
+////isometric
+//perspective=1;
+///axonometric/cabinet perspective shift
+//Pen.fillOval(Rect.aboutPoint(Point(cp.x + cp.z*0.5,cp.y + cp.z*0.5),d_o*per,d_o*per));
+
+///color
+Pen.fillColor = Color.white.alpha_(perspective.clip(0.1,1.0));
+Pen.strokeColor = Color.white.alpha_(perspective.clip(0.1,1.0));
+
+//////points
+pointx=cp.x*perspective;
+pointy=cp.y*perspective;
+~point_cloud=~point_cloud++Point(pointx,pointy);
+///point_oval
+Pen.addOval(Rect.aboutPoint(Point(pointx,pointy),d_o*perspective,d_o*perspective));
+///rectangle
+//Pen.addRect(Rect.aboutPoint(Point(pointx,pointy),d_o*perspective*,d_o*perspective*));
+Pen.fillStroke;
+n=n+1;
+};
+n=0;
+////////mesh
+(
+n = 0;m=0;k = 0;
+(~point_cloud.size).do {
+var m = n + 1;
+(~point_cloud.size - n - 1).do {
+///all lines
+///Pen.line(~point_cloud.[n],~point_cloud.[m]);
+
+////selective exclusion
+//if([[0,7],[1,6],[2,5]].includes([n,m]).not){Pen.line(~point_cloud.[n],~point_cloud.[m])};
+
+////mesh nearby points exclusion
+///if(~point_cloud.[n].dist(~point_cloud.[m])<50) {Pen.line(~point_cloud.[n],~point_cloud.[m])};
+
+/////random exclusion
+///if(0.3.coin){Pen.line(~point_cloud.[n],~point_cloud.[m])};
+
+/////skip adjuscent
+///if((m - n) > 1){Pen.line(~point_cloud.[n],~point_cloud.[m])};
+
+///proximity
+//if(~point_cloud[n].dist(~point_cloud[m]) < (diameter/3) ) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+
+///sequence exclusion
+//based on algorithmic booelan distributions, number sequencies and sets, propabilty graphs to boolean sequence
+//if( (~lseq[k] == 1) ) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+
+//compound exclusion, based on sequence and point distance
+//if( (~lseq.[k] == 0) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+
+//automaton threading
+~lseq=((~controlBusx.getSynchronous*
+~controlBusz.getSynchronous)+(~controlBusy.getSynchronous*
+~controlBusz.getSynchronous)).round(0.1);
+if( (~lseq == 0) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+
+Pen.stroke;
+m=m+1;
+k=k+1
+};
+ n=n+1;
+};
+//~lseq=~lseq.size.collect{2.rand};
+	)
+};
+
+{ while { run } {v.background_(Color.black); v.refresh; (0.01).wait } }.fork(AppClock);
+
+w.front;
+~hz=Synth.new(\player).register;
+//~hz.set(\ml,0.1);
+~run.play;
+
+Routine({
+inf.do {
+///points rotation distortion
+r_az = r_az + 0;
+r_el = r_el + 0;
+///whole animation object rotation
+//rx = 0.5pi;
+//ry = ry + 0.05;
+//rz = 0;
+///grouped animation
+rx=0.5pi;
+ry=(ry + ~rotation).wrap(0,2pi);
+rz=0;
+{v.refresh}.defer;
+(1/8).wait;
+
+};
+}).play;
+)
