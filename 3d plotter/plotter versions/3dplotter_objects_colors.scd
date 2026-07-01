@@ -12,7 +12,7 @@ var dict = IdentityDictionary[\A -> "AB", \B -> "A"];
 //These are the production rules of the L-system
 var word = "A";
 var string_temp = "";
-var iter = 20;
+var iter = 16, iterf=5;
 //These are diction for the mapping of the alphabet to "artistic" parameters: degrees in a scale, beat occurrence, etc.
 var dictnotes = IdentityDictionary[\A ->0, \B -> 1];  ///amount of 0 in A (array), is the value of Rest(A) for silent events, eg. if A=[0,0,0] then Rest(3)
  ~lseq=[];
@@ -24,7 +24,9 @@ word.postln;
 //Here we map the final system to the parameters as above
 word.do({|i| ~lseq = ~lseq ++ dictnotes[i.asSymbol];});
 ~lseq.postln;
-~lseq.size////check for sequence size >= vertices count
+~lseq.size;////check for sequence size >= vertices count
+////modulation random nested filtering
+iterf.do{~lseq=~lseq*~lseq.size.collect{2.rand}};
 }.value);
 
 ////plotter
@@ -34,7 +36,7 @@ var r_az = 0.0,r_el = 0.0,az,el,cp,protaz,protel;
 var point,perspective,dist=600,mag=1;
 var rx = 0.0,ry = 0.0,rz = 0.0;
 var plane,pointx,pointy;
-var d_o=2,run=1;
+var d_o=0.5,run = true;
 
 w = Window("3d Plotter", Rect(100,100,size,size));
 v = UserView(w, w.view.bounds).background_(Color.black);
@@ -102,7 +104,7 @@ n=0;
 ////////mesh
 n = 0;m=0;
 (~point_cloud.size).do {
-var m = n + 1; m=0;
+var m = n + 1;
 (~point_cloud.size - n - 1).do {
 ///all lines
 ///Pen.line(~point_cloud.[n],~point_cloud.[m]);
@@ -116,6 +118,7 @@ var m = n + 1; m=0;
 ///if((m - n) > 1){Pen.line(~point_cloud.[n],~point_cloud.[m])};
 ///sequence exclusion
 //based on algorithmic booelan distributions, number sequencies and sets, propabilty graphs to boolean sequence
+~lseq=~lseq.scramble;
 if(~lseq.[m] == 1) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
 Pen.stroke;
 m=m+1;
@@ -124,7 +127,7 @@ m=m+1;
 };
 //~lseq=~lseq.size.collect{2.rand};
 };
-{ while { run } {v.background_(Color.black); v.refresh; (1/8).wait } }.fork(AppClock);
+{ while { run } {v.background_(Color.black); v.refresh; (0.01).wait } }.fork(AppClock);
 w.front;
 
 Routine({
