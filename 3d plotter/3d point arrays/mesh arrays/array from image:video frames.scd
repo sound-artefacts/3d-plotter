@@ -63,13 +63,13 @@ var files, images, win, view, n=0;
 var xx=0,yy=0,r=[],g=[],b=[],color;
 ~cx=[]; ~cy=[];  ~cz=[];
 files = PathName.new("/Users/rohifes/sound artefacts/shots_image to sound/feed1/").files;
+~fsize=files.size;
 files.size.do { images=Image.open(files.[n].fullPath);
 n=n+1;yy=0;
 r=[];g=[];b=[];
 ~height=images.height;
 ~width=images.width;
 ~vertices = ~height*~width;
-~fsize=files.size;
 ~height.do{
 ~width.do {
 color = images.getColor(xx, yy);
@@ -90,29 +90,6 @@ r=r+0.0001;  g=g+0.0001;  b=b+0.0001;
 		}.defer;
 );
 
-(
-{
-    ~az_im = [];
-    ~el_im = [];
-
-    ~vertices.do {
-        var ix, iy, iz,n=1.neg;
-        var az, el, r;
-
-					n=n+1;
-        ix = ~cx[n];
-        iy = ~cy[n];
-        iz = ~cz[n];
-
-        az = atan2(iy, ix); // azimuth
-        r = sqrt(ix.squared + iy.squared + iz.squared);
-        el = acos(iz / r);  // same convention as Cartesian.phi
-
-        ~az_im = ~az_im++az;
-        ~el_im = ~el_im++el;
-    };
-}.defer;
-)
 
 ////video playback
 
