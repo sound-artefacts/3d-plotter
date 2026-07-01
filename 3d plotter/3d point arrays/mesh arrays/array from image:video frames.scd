@@ -69,6 +69,7 @@ r=[];g=[];b=[];
 ~height=images.height;
 ~width=images.width;
 ~vertices = ~height*~width*files.size;
+~fsize=files.size;
 ~height.do{
 ~width.do {
 color = images.getColor(xx, yy);
