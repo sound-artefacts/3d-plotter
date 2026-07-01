@@ -148,7 +148,7 @@ r_az = r_az + 0;
 r_el = r_el + 0;
 ///whole animation object rotation
 rx = 0.5pi;
-ry = ry + 0.2;
+ry = ry + 0.025;
 rz = 0;
 {v.refresh}.defer;
 (1/8).wait;
