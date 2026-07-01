@@ -1,6 +1,8 @@
 (
+~times=4; ~vek=16;
+~coo=~times*~vek;
 {
-var  sph1,sph2,sph3,sph4,sph5,sph6,sph7,m_x=3,m_y=3,m_z=4,qx,qy,mq=m_x-1;
+var  sph1,sph2,sph3,sph4,sph5,sph6,sph7,m_x=3,m_y=3,m_z=3,qx,qy,mq=m_x-1;
 var az1=0,el1=0,az2=0,el2=0,az3=0,el3=0,mag,mag_x,mag_y,mag_z,mag_qx,mag_qy;
 var az4=0,el4=0,az5=0,el5=0,az6=0,el6=0,az7=0,el7=0;
 var azimuth,elevation,magnitudex,magnitudey,magnitudez,angle=0,n=12;
@@ -11,8 +13,8 @@ var mag1=1,mag2=1,mag3=1,mag4=1,mag5=1,mag6=1,mag7=1;
 
 //	spread = if(m_z < 1) { 1 / m_z } { m_z };
 
-	16.do{
-azimuth=32.collect{
+	~times.do{
+azimuth=~vek.collect{
 			az1 = (az1+(2pi-(2pi/silver_r))).wrap(pi.neg,pi);
 		   el1 = (el1+(pi-(pi/silver_r))).wrap((pi/2).neg,(pi/2));
 
@@ -21,7 +23,7 @@ sph1=(Spherical(mag1,(az1+angle).wrap(pi.neg,pi),(el1+angle).wrap((pi/2).neg,(pi
 
 	};
 
-elevation=32.collect{
+elevation=~vek.collect{
 				az2 = (az2+(2pi-(2pi/silver_r))).wrap(pi.neg,pi);
 			el2 = (el2+(pi-(pi/silver_r))).wrap((pi/2).neg,(pi/2));
 
@@ -30,7 +32,7 @@ elevation=32.collect{
 
 	};
 
-magnitudex=	32.collect{
+magnitudex=	~vek.collect{
 			az3 = (az3+(2pi-(2pi/silver_r))).wrap(pi.neg,pi);
 			el3 = (el3+(pi-(pi/silver_r))).wrap((pi/2).neg,(pi/2));
 
@@ -42,7 +44,7 @@ magnitudex=	32.collect{
 
 				};
 
-magnitudey=	32.collect{
+magnitudey=	~vek.collect{
 			az4 = (az4+(2pi-(2pi/silver_r))).wrap(pi.neg,pi);
 				el4 = (el4+(pi-(pi/silver_r))).wrap((pi/2).neg,(pi/2));
 
@@ -54,7 +56,7 @@ magnitudey=	32.collect{
 				};
 
 
-qx=	32.collect{
+qx=	~vek.collect{
 			az5 = (az5+(2pi-(2pi/silver_r))).wrap(pi.neg,pi);
 			el5 = (el5+(pi-(pi/silver_r))).wrap((pi/2).neg,(pi/2));
 
@@ -71,7 +73,7 @@ cos((sph5.phi.round(0.000000000001)).wrap((pi/2).neg,(pi/2))))))).rho/(2.sqrt)).
 				};
 
 
-qy=	32.collect{
+qy=	~vek.collect{
 			az6 = (az6+(2pi-(2pi/silver_r))).wrap(pi.neg,pi);
 			el6 = (el6+(pi-(pi/silver_r))).wrap((pi/2).neg,(pi/2));
 
@@ -87,7 +89,7 @@ cos((sph6.phi.round(0.000000000001)).wrap((pi/2).neg,(pi/2))))))).rho/(2.sqrt)).
 				};
 
 
-magnitudez=	32.collect{
+magnitudez=	~vek.collect{
 			az7 = (az7+(2pi-(2pi/silver_r))).wrap(pi.neg,pi);
 			el7 = (el7+(pi-(pi/silver_r))).wrap((pi/2).neg,(pi/2));
 
