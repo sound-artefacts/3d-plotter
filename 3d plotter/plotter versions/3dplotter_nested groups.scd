@@ -6,6 +6,24 @@ var n=1.neg;
 ~nseq=8.collect{2.rand};
 }.defer);
 
+(
+Routine({loop{
+	var n=1.neg,a,b,c,d,p;
+	~fsize.do{
+~lseq=~vertices.collect{
+n=n+1;
+p=Spherical(1,~az_im.[n],~el_im.[n]);
+a=if( (p.x > 0.4),1,0);
+b=if( (p.y > 0.4),1,0);
+c=if( (p.z > 0.4),1,0);
+d=a*b*c;
+};
+
+        (1/2).wait; // frame duration
+};
+(120).wait}
+}).play;
+)
 
 
 
@@ -15,7 +33,7 @@ var dict = IdentityDictionary[\A -> "AB", \B -> "A"];
 //These are the production rules of the L-system
 var word = "A";
 var string_temp = "";
-var iter = 16, iterf=1;
+var iter = 16;
 //These are diction for the mapping of the alphabet to "artistic" parameters: degrees in a scale, beat occurrence, etc.
 var dictnotes = IdentityDictionary[\A ->0, \B -> 1];  ///amount of 0 in A (array), is the value of Rest(A) for silent events, eg. if A=[0,0,0] then Rest(3)
  ~lseq=[];
@@ -28,10 +46,30 @@ word.postln;
 word.do({|i| ~lseq = ~lseq ++ dictnotes[i.asSymbol];});
 ~lseq.postln;
 ~lseq.size;////check for sequence size >= vertices count
-////modulation random nested filtering
-iterf.do{~lseq=~lseq*~lseq.size.collect{2.rand}};
 }.value);
 
+//////simple sequence
+(
+~lseq=[];
+2000.do{~lseq=~lseq++[1]};
+)
+//////////////fitering/threading/ image based
+(
+{
+var  n=1.neg,p,a,b,c,d;
+////modulation random nested filtering
+//1.do{~lseq=~lseq*~lseq.size.collect{2.rand}};
+////image based filtering
+~lseq=~lseq.size.collect{
+n=n+1;
+p=Spherical(1,~az_im.[n],~el_im.[n]);
+a=if( (p.x > 0.4),1,0);
+b=if( (p.y > 0.4),1,0);
+c=if( (p.z > 0.4),1,0);
+d=a*b*c;
+}
+}.defer
+)
 ////plotter
 (
 var w, u,size=1000,diameter=300,n=0,m=0,k=0;
@@ -39,7 +77,7 @@ var r_az = 0.0,r_el = 0.0,az,el,cp,protaz,protel;
 var point,perspective,dist=600,mag=1;
 var rx = 0.0,ry = 0.0,rz = 0.0;
 var plane,pointx,pointy;
-var d_o=0.5,lined=10,run = true;
+var d_o=0.5,lined=5,run = true;
 
 w = Window("3d Plotter", Rect(100,100,size,size));
 v = UserView(w, w.view.bounds).background_(Color.black);
@@ -59,7 +97,7 @@ n=0;
 az=~az.[n];el=~el.[n];
 ///spherical harmonics
 //mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt));
-mag=(Cartesian(0,0,~magz.[n]).rho/(2.sqrt));
+//mag=(Cartesian(0,0,~magz.[n]).rho/(2.sqrt));
 ///complex spherical harmonics
 ///mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt))+(Cartesian(~qx.[n],~qy.[n],0).rho/(2.sqrt));
 
