@@ -6,6 +6,25 @@ var n=1.neg;
 ~nseq=8.collect{2.rand};
 }.defer);
 
+(
+Routine({loop{
+	var n=1.neg,a,b,c,d,p;
+	~fsize.do{
+~lseq=~vertices.collect{
+n=n+1;
+p=Cartesian(1,~cx.[n],~cy.[n],~cz.[n]);
+a=if( (p.x > 0.4),1,0);
+b=if( (p.y > 0.4),1,0);
+c=if( (p.z > 0.4),1,0);
+d=a*b*c;
+};
+
+        (1/2).wait; // frame duration
+};
+(120).wait}
+}).play;
+)
+
 //////l-system thread
 ({
 var dict = IdentityDictionary[\A -> "AB", \B -> "A"];

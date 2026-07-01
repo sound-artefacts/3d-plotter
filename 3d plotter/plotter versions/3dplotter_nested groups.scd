@@ -12,7 +12,7 @@ Routine({loop{
 	~fsize.do{
 ~lseq=~vertices.collect{
 n=n+1;
-p=Spherical(1,~az_im.[n],~el_im.[n]);
+p=Cartesian(1,~cx.[n],~cy.[n],~cz.[n]);
 a=if( (p.x > 0.4),1,0);
 b=if( (p.y > 0.4),1,0);
 c=if( (p.z > 0.4),1,0);
