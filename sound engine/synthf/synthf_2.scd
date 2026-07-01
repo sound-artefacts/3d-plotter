@@ -358,7 +358,7 @@ Out.ar(busArray.[11],LeakDC.ar(sig3*env*g_ch4));
 var m1=1.neg, m2=1.neg;
 var m3=1.neg,n=0,bank=5,rhythm=4,time=32.reciprocal,beat=1;
 var durx=[],dury=[],durz=[],durx1=[],dury1=[],durz1=[];
-var dx=[],dy=[],dz=[],bx,by,bz,durx2,dury2,durz2;
+var dx=[],dy=[],dz=[],bx,by,bz,durx2,dury2,durz2,dur=[],dur1=[],dur2;
 
 ~azr=[45.degrad,135.neg.degrad,45.neg.degrad,135.degrad];
 ~elr=[35.264390.neg.degrad,35.264390.neg.degrad,35.264390.degrad,35.264390.degrad];
@@ -406,16 +406,10 @@ bank.do{
 };
 
 n=0;
-rhythm.do{ durx=durx++dx.[n]; n=n+1;}; n=0;
-rhythm.do{ dury=dury++dy.[n]; n=n+1;}; n=0;
-rhythm.do{ durz=durz++dz.[n]; n=n+1;}; n=1;
-(rhythm-1).do{ durx1=durx1++dx.[n]; n=n+1;}; n=1;
-(rhythm-1).do{ dury1=dury1++dy.[n]; n=n+1;}; n=1;
-(rhythm-1).do{ durz1=durz1++dz.[n]; n=n+1;}; n=0;
-durx2=[dx.[4]]++durx1.reverse;
-dury2=[dy.[4]]++dury1.reverse;
-durz2=[dz.[4]]++durz1.reverse;
-~dur=~dur++durx++dury++durz++durx2++dury2++durz2;
+rhythm.do{ dur=dur++Complex(dx.[n],dy.[n]).theta*dz.[n]; n=n+1;}; n=1;
+(rhythm-1).do{ dur1=dur1++Complex(dx.[n],dy.[n]).theta*dz.[n]; n=n+1;}; n=1;
+dur2=[Complex(dx.[4],dy.[4]).theta*dz.[4]]++dur1.reverse;
+~dur=~dur++dur++dur2;
 }.value);
 ({
 var dict = IdentityDictionary[\A -> "AB", \B -> "A"];
