@@ -48,9 +48,6 @@ az=p.theta;
 }).play;
 )*/
 
-////thread automaton
-
-
 //////l-system thread
 ({
 var dict = IdentityDictionary[\A -> "AB", \B -> "A"];
@@ -93,6 +90,47 @@ c=if( (p.z > 0.4),1,0);
 d=a*b*c;
 }
 }.defer
+);
+////thread automaton
+(
+s.options.numWireBufs = 1024*16;
+s.options.numOutputBusChannels=4;
+s.options.numInputBusChannels=0;
+s.options.memSize = 8192*64;
+s.options.blockSize = 64;
+s.options.maxNodes = 1024 * 8;
+s.boot;
+)
+(
+~controlBusx = Bus.control(s, 1);
+~controlBusy = Bus.control(s, 1);
+~controlBusz = Bus.control(s, 1);
+);
+(
+SynthDef.new(\coo,{
+			arg cor=0;
+			var p,az,el,f1,f2,f3;
+
+az=Select.kr(cor,~az_im);
+el=Select.kr(cor,~el_im);
+p=Spherical(56,az,el);
+f1=2.pow(p.x.round(1)/56);
+f2=2.pow(p.y.round(1)/56);
+f3=2.pow(p.x.round(1)/56);
+Out.kr(~controlBusx.index, (SinOsc.kr(f1,f1.reciprocal*2pi,f1.reciprocal)));
+Out.kr(~controlBusy.index, (SinOsc.kr(f2,f2.reciprocal*2pi,f2.reciprocal)));
+Out.kr(~controlBusz.index, (SinOsc.kr(f3,f3.reciprocal*2pi,f3.reciprocal)));
+
+}).add;
+	)
+(
+~thread=Synth(\coo);
+
+Routine({loop{
+	~thread.set(\cor,~vertices.rand);
+        (0.01).wait; // frame duration
+};
+}).play;
 )
 ////plotter
 (
@@ -111,11 +149,12 @@ v.drawFunc = {
 Pen.translate(v.bounds.width/2,v.bounds.height/2);
 ///Pen.scale(0.5, 2);
 ///Pen.moveTo(0@0);
-
-//~vertice=12;  ////solide vertices cound
+//~vertice=20;  ////solide vertices cound
 ~vertice=~coo;   ///count from distributions points
 ~point_cloud=[];
 n=0;
+//~lseq=((~controlBusx.getSynchronous*(1/(1+~controlBusz.getSynchronous)))+
+//(~controlBusy.getSynchronous*(1/(1+~controlBusz.getSynchronous))));
 
 (~vertice).do {
 az=~az.[n];el=~el.[n];
@@ -172,7 +211,6 @@ n = 0;m=0;k = 0;
 (~point_cloud.size).do {
 var m = n + 1;
 (~point_cloud.size - n - 1).do {
-//~lseq=~lseq.scramble;
 ///all lines
 ///Pen.line(~point_cloud.[n],~point_cloud.[m]);
 
@@ -196,7 +234,15 @@ var m = n + 1;
 //if( (~lseq[k] == 1) ) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
 
 //compound exclusion, based on sequence and point distance
-if( (~lseq[k] == 0) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+//if( (~lseq.[k] == 0) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+
+//automaton threading
+~lseq=((~controlBusx.getSynchronous*
+~controlBusz.getSynchronous)+(~controlBusy.getSynchronous*
+~controlBusz.getSynchronous)).round(0.1);
+
+if( (~lseq == 0) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+
 Pen.stroke;
 m=m+1;
 k=k+1

@@ -6,7 +6,8 @@ var n=1.neg;
 ~nseq=8.collect{2.rand};
 }.defer);
 
-(
+/////thread animation routine based on image data
+/*(
 Routine({loop{
 	var n=1.neg,a,b,c,d,p;
 	~fsize.do{
@@ -23,7 +24,29 @@ d=a*b*c;
 };
 (120).wait}
 }).play;
-)
+)*/
+
+/////
+//thread/line as elevation wave with 0 at azimuth phase,as routine based on image data
+/*(
+Routine({loop{
+	var n=1.neg,el,az,p;
+	~lseq=[];
+n=0;
+	~fsize.do{
+~vertices.do{
+p=Cartesian(1,~cx.[n],~cy.[n],~cz.[n]).asSpherical;
+el=p.phi;
+~lseq=~lseq++[el];
+n=n+1;
+az=p.theta;
+ (az).wait;
+};
+(1/8).wait;
+};
+(120).wait}
+}).play;
+)*/
 
 //////l-system thread
 ({
@@ -31,7 +54,7 @@ var dict = IdentityDictionary[\A -> "AB", \B -> "A"];
 //These are the production rules of the L-system
 var word = "A";
 var string_temp = "";
-var iter = 16, iterf=3;
+var iter = 16;
 //These are diction for the mapping of the alphabet to "artistic" parameters: degrees in a scale, beat occurrence, etc.
 var dictnotes = IdentityDictionary[\A ->0, \B -> 1];  ///amount of 0 in A (array), is the value of Rest(A) for silent events, eg. if A=[0,0,0] then Rest(3)
  ~lseq=[];
@@ -44,10 +67,71 @@ word.postln;
 word.do({|i| ~lseq = ~lseq ++ dictnotes[i.asSymbol];});
 ~lseq.postln;
 ~lseq.size;////check for sequence size >= vertices count
-////modulation random nested filtering
-iterf.do{~lseq=~lseq*~lseq.size.collect{2.rand}};
 }.value);
 
+//////simple sequence
+(
+~lseq=[];
+2000.do{~lseq=~lseq++[1]};
+)
+//////////////fitering/threading/ image based
+(
+{
+var  n=1.neg,p,a,b,c,d;
+////modulation random nested filtering
+//1.do{~lseq=~lseq*~lseq.size.collect{2.rand}};
+////image based filtering
+~lseq=~lseq.size.collect{
+n=n+1;
+p=Spherical(1,~az_im.[n],~el_im.[n]);
+a=if( (p.x > 0.4),1,0);
+b=if( (p.y > 0.4),1,0);
+c=if( (p.z > 0.4),1,0);
+d=a*b*c;
+}
+}.defer
+);
+////thread automaton
+(
+s.options.numWireBufs = 1024*16;
+s.options.numOutputBusChannels=4;
+s.options.numInputBusChannels=0;
+s.options.memSize = 8192*64;
+s.options.blockSize = 64;
+s.options.maxNodes = 1024 * 8;
+s.boot;
+)
+(
+~controlBusx = Bus.control(s, 1);
+~controlBusy = Bus.control(s, 1);
+~controlBusz = Bus.control(s, 1);
+);
+(
+SynthDef.new(\coo,{
+			arg cor=0;
+			var p,az,el,f1,f2,f3;
+
+az=Select.kr(cor,~az_im);
+el=Select.kr(cor,~el_im);
+p=Spherical(56,az,el);
+f1=2.pow(p.x.round(1)/56);
+f2=2.pow(p.y.round(1)/56);
+f3=2.pow(p.x.round(1)/56);
+Out.kr(~controlBusx.index, (SinOsc.kr(f1,f1.reciprocal*2pi,f1.reciprocal)));
+Out.kr(~controlBusy.index, (SinOsc.kr(f2,f2.reciprocal*2pi,f2.reciprocal)));
+Out.kr(~controlBusz.index, (SinOsc.kr(f3,f3.reciprocal*2pi,f3.reciprocal)));
+
+}).add;
+	)
+(
+~thread=Synth(\coo);
+
+Routine({loop{
+	~thread.set(\cor,~vertices.rand);
+        (0.01).wait; // frame duration
+};
+}).play;
+)
 ////plotter
 (
 var w, u,size=1000,diameter=300,n=0,m=0,k=0;
@@ -55,7 +139,7 @@ var r_az = 0.0,r_el = 0.0,az,el,cp,protaz,protel;
 var point,perspective,dist=600,mag=1;
 var rx = 0.0,ry = 0.0,rz = 0.0;
 var plane,pointx,pointy;
-var d_o=0.5,run = true;
+var d_o=0.5,lined=5,run = true;
 
 w = Window("3d Plotter", Rect(100,100,size,size));
 v = UserView(w, w.view.bounds).background_(Color.black);
@@ -65,16 +149,18 @@ v.drawFunc = {
 Pen.translate(v.bounds.width/2,v.bounds.height/2);
 ///Pen.scale(0.5, 2);
 ///Pen.moveTo(0@0);
-
-//~vertice=12;  ////solide vertices cound
+//~vertice=20;  ////solide vertices cound
 ~vertice=~coo;   ///count from distributions points
 ~point_cloud=[];
 n=0;
+//~lseq=((~controlBusx.getSynchronous*(1/(1+~controlBusz.getSynchronous)))+
+//(~controlBusy.getSynchronous*(1/(1+~controlBusz.getSynchronous))));
 
 (~vertice).do {
 az=~az.[n];el=~el.[n];
 ///spherical harmonics
 //mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt));
+//mag=(Cartesian(0,0,~magz.[n]).rho/(2.sqrt));
 ///complex spherical harmonics
 ///mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt))+(Cartesian(~qx.[n],~qy.[n],0).rho/(2.sqrt));
 
@@ -125,7 +211,6 @@ n = 0;m=0;k = 0;
 (~point_cloud.size).do {
 var m = n + 1;
 (~point_cloud.size - n - 1).do {
-~lseq=~lseq.scramble;
 ///all lines
 ///Pen.line(~point_cloud.[n],~point_cloud.[m]);
 
@@ -149,7 +234,15 @@ var m = n + 1;
 //if( (~lseq[k] == 1) ) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
 
 //compound exclusion, based on sequence and point distance
-if( (~lseq[k] == 1) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/2) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+//if( (~lseq.[k] == 0) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+
+//automaton threading
+~lseq=((~controlBusx.getSynchronous*
+~controlBusz.getSynchronous)+(~controlBusy.getSynchronous*
+~controlBusz.getSynchronous)).round(0.1);
+
+if( (~lseq == 0) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+
 Pen.stroke;
 m=m+1;
 k=k+1
@@ -167,7 +260,7 @@ r_az = r_az + 0;
 r_el = r_el + 0;
 ///whole animation object rotation
 rx = 0.5pi;
-ry = ry + 0.2;
+ry = ry + 0.05;
 rz = 0;
 {v.refresh}.defer;
 (1/8).wait;
