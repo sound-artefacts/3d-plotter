@@ -6,7 +6,8 @@ var n=1.neg;
 ~nseq=8.collect{2.rand};
 }.defer);
 
-(
+/////thread animation routine based on image data
+/*(
 Routine({loop{
 	var n=1.neg,a,b,c,d,p;
 	~fsize.do{
@@ -23,8 +24,31 @@ d=a*b*c;
 };
 (120).wait}
 }).play;
-)
+)*/
 
+/////
+//thread/line as elevation wave with 0 at azimuth phase,as routine based on image data
+/*(
+Routine({loop{
+	var n=1.neg,el,az,p;
+	~lseq=[];
+n=0;
+	~fsize.do{
+~vertices.do{
+p=Cartesian(1,~cx.[n],~cy.[n],~cz.[n]).asSpherical;
+el=p.phi;
+~lseq=~lseq++[el];
+n=n+1;
+az=p.theta;
+ (az).wait;
+};
+(1/8).wait;
+};
+(120).wait}
+}).play;
+)*/
+
+////thread automaton
 
 
 //////l-system thread
@@ -172,7 +196,7 @@ var m = n + 1;
 //if( (~lseq[k] == 1) ) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
 
 //compound exclusion, based on sequence and point distance
-if( (~lseq[k] == 1) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+if( (~lseq[k] == 0) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
 Pen.stroke;
 m=m+1;
 k=k+1
