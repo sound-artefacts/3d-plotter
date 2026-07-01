@@ -68,7 +68,7 @@ n=n+1;yy=0;
 r=[];g=[];b=[];
 ~height=images.height;
 ~width=images.width;
-~vertices = ~height*~width;
+~vertices = ~height*~width*files.size;
 ~height.do{
 ~width.do {
 color = images.getColor(xx, yy);
@@ -86,36 +86,6 @@ r=r+0.0001;  g=g+0.0001;  b=b+0.0001;
 ~cy=~cy++g;
 ~cz=~cz++b;
 }
-		}.defer;
-);
-
-
-(
-(~img_sound = Image.open("/Users/rohifes/sound artefacts/shots_image to sound/feed1/DSC_0011.JPG");
-{
-var img,c=0, color,xx=0,yy=0,r=[],g=[],b=[],h_count=0;
-img = ~img_sound;
-~cx=[]; ~cy=[];  ~cz=[];
-~height=img.height;
-~width=img.width;
-~vertices = ~height*~width;
-	~height.do{
-				~width.do {
-         color = img.getColor(xx, yy);
-	[color.red, color.green, color.blue].postln;
-			r=r++color.red;
-			g=g++color.green;
-         	b=b++color.blue;
-xx=xx+1;
-				};
-				xx=0;
-				yy=yy+1;
-    };
-			r=r+0.0001;  g=g+0.0001;  b=b+0.0001;
-
-        ~cx=~cx++r;
-		~cy=~cy++g;
-		~cz=~cz++b;
 		}.defer;
 );
 
@@ -141,7 +111,6 @@ xx=xx+1;
         ~el_im = ~el_im++el;
     };
 }.defer;
-);
 )
 
 ////video playback
