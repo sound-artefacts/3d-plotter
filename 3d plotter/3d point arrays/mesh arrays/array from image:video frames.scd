@@ -68,7 +68,7 @@ n=n+1;yy=0;
 r=[];g=[];b=[];
 ~height=images.height;
 ~width=images.width;
-~vertices = ~height*~width*files.size;
+~vertices = ~height*~width;
 ~fsize=files.size;
 ~height.do{
 ~width.do {
