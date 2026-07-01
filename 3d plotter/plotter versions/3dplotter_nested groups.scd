@@ -6,13 +6,16 @@ var n=1.neg;
 ~nseq=8.collect{2.rand};
 }.defer);
 
+
+
+
 //////l-system thread
 ({
 var dict = IdentityDictionary[\A -> "AB", \B -> "A"];
 //These are the production rules of the L-system
 var word = "A";
 var string_temp = "";
-var iter = 16, iterf=3;
+var iter = 16, iterf=1;
 //These are diction for the mapping of the alphabet to "artistic" parameters: degrees in a scale, beat occurrence, etc.
 var dictnotes = IdentityDictionary[\A ->0, \B -> 1];  ///amount of 0 in A (array), is the value of Rest(A) for silent events, eg. if A=[0,0,0] then Rest(3)
  ~lseq=[];
@@ -36,7 +39,7 @@ var r_az = 0.0,r_el = 0.0,az,el,cp,protaz,protel;
 var point,perspective,dist=600,mag=1;
 var rx = 0.0,ry = 0.0,rz = 0.0;
 var plane,pointx,pointy;
-var d_o=0.5,run = true;
+var d_o=0.5,lined=10,run = true;
 
 w = Window("3d Plotter", Rect(100,100,size,size));
 v = UserView(w, w.view.bounds).background_(Color.black);
@@ -56,6 +59,7 @@ n=0;
 az=~az.[n];el=~el.[n];
 ///spherical harmonics
 //mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt));
+mag=(Cartesian(0,0,~magz.[n]).rho/(2.sqrt));
 ///complex spherical harmonics
 ///mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt))+(Cartesian(~qx.[n],~qy.[n],0).rho/(2.sqrt));
 
@@ -106,7 +110,7 @@ n = 0;m=0;k = 0;
 (~point_cloud.size).do {
 var m = n + 1;
 (~point_cloud.size - n - 1).do {
-~lseq=~lseq.scramble;
+//~lseq=~lseq.scramble;
 ///all lines
 ///Pen.line(~point_cloud.[n],~point_cloud.[m]);
 
@@ -130,7 +134,7 @@ var m = n + 1;
 //if( (~lseq[k] == 1) ) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
 
 //compound exclusion, based on sequence and point distance
-if( (~lseq[k] == 1) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/2) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
+if( (~lseq[k] == 1) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) }) {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
 Pen.stroke;
 m=m+1;
 k=k+1
@@ -148,7 +152,7 @@ r_az = r_az + 0;
 r_el = r_el + 0;
 ///whole animation object rotation
 rx = 0.5pi;
-ry = ry + 0.025;
+ry = ry + 0.05;
 rz = 0;
 {v.refresh}.defer;
 (1/8).wait;
