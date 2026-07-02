@@ -125,7 +125,7 @@ Out.kr(~controlBusz.index, (SinOsc.kr(f3,f3.reciprocal*2pi,f3.reciprocal)));
 	)
 (
 ~thread=Synth(\coo);
-
+~vertice=(~count.[0]*~count.[1]*~count.[2]*~count.[3]*~count.[4]*~count.[5]);
 Routine({loop{
 	~thread.set(\cor,~vertice.rand);
         (0.1).wait; // frame duration
@@ -139,7 +139,7 @@ var r_az = 0.0,r_el = 0.0,az,el,cp,protaz,protel;
 var point,perspective,dist=600,mag=1;
 var rx = 0.0,ry = 0.0,rz = 0.0;
 var plane,pointx,pointy;
-var d_o=2,lined=5,run = true;
+var d_o=2,lined=3,run = true;
 
 w = Window("3d Plotter", Rect(100,100,size,size));
 v = UserView(w, w.view.bounds).background_(Color.black);
@@ -158,7 +158,8 @@ n=0;
 //(~controlBusy.getSynchronous*(1/(1+~controlBusz.getSynchronous))));
 
 (~vertice).do {
-az=~az.[n];el=~el.[n];
+//az=~az.[n];el=~el.[n];
+az=~azimuth.[n];el=~elevation.[n];
 ///spherical harmonics
 //mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt));
 //mag=(Cartesian(0,0,~magz.[n]).rho/(2.sqrt));
@@ -173,7 +174,7 @@ point = Spherical(diameter*mag,protaz,protel).asCartesian;
 
 ///rotations
 point=point.rotateYZ(rx).rotateXZ(ry).rotateXY(rz);
-point=point.rotateYZ(0.25pi);
+point=point.rotateYZ(0.1pi);
 
 plane=Complex(point.x,point.y);
 //////remaping

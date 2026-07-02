@@ -130,7 +130,8 @@ var waveFreq = 3;
 var amp=0.1;
 var theta,phi ,wave;
 
-	~az=[];~el=[];~magx=[];~magy=[];~magz=[];~qx=[]; ~cart=[];      ~detune=1;
+	~az=[];~el=[];~magx=[];~magy=[];~magz=[];~qx=[];
+	~azimuth=[];~elevation=[];
 //	spread = if(m_z < 1) { 1 / m_z } { m_z };
 
   ~run= Routine({loop{
@@ -197,8 +198,9 @@ az_6=0; el_6=0;
 (
 {
 ~az=[];~el=[];~magx=[];~magy=[];~magz=[];~magqx=[];
-
+~azimuth=[];~elevation=[];
 axis.do{
+
 //////////////////////////// AZ
 cloud.do{
 
@@ -240,7 +242,7 @@ sph_11=Spherical(1/scale2,(az_1+angle11).wrap(pi.neg,pi),(el_1+angle11).wrap((pi
 
 };
 
-~azimuth=~azimuth++azimuth;
+~az=~az++azimuth;
 angle11=(angle11+(2pi-(2pi/s))).wrap(0,2pi);
 
 };
@@ -294,7 +296,7 @@ sph_22=Spherical(1/scale2,(az_2+angle11).wrap(pi.neg,pi),(el_2+angle11).wrap((pi
 
 };
 
-~elevation=~elevation++elevation;
+~el=~el++elevation;
 angle11=(angle11+(2pi-(2pi/s))).wrap(0,2pi);
 
 };
@@ -351,12 +353,18 @@ magx=((Complex(cos((sph3.theta*m_x)),cos((sph3.theta*m_x))).rho/(2.sqrt))*
 +Spherical(magx/scale2,sph_33.theta,sph_33.phi).asCartesian).asSpherical.rho
 
 };
-~magx=~magx++magnitudex;
+
+								~magx=~magx++magnitudex;
 angle11=(angle11+(2pi-(2pi/s))).wrap(0,2pi);
+
 };
+
 };
+
 angle1=(angle1+(2pi-(2pi/s))).wrap(0,2pi);
+
 };
+
 };
 
 //////////////////////////// MAG Y
@@ -460,16 +468,23 @@ magz=(Complex(sin((sph7.phi*m_z)),sin((sph7.phi*m_z))).rho/(2.sqrt));
 +Spherical(magz/scale2,sph_77.theta,sph_77.phi).asCartesian).asSpherical.rho
 
 };
-~magz=~magz++magnitudez;
+
+								~magz=~magz++magnitudez;
 angle11=(angle11+(2pi-(2pi/s))).wrap(0,2pi);
+
 };
+
 };
+
 angle1=(angle1+(2pi-(2pi/s))).wrap(0,2pi);
+
 };
+
 };
 
 /////////////////////////////////MAG QX
-cloud.do{
+	cloud.do{
+
 az6=(az6+(2pi-(2pi/s))).wrap(pi.neg,pi);
 el6=(el6+(pi-(pi/g))).wrap((pi/2).neg,(pi/2));
 angle1=angle;
@@ -504,20 +519,26 @@ el_6=(el_6+(pi-(pi/g))).wrap((pi/2).neg,(pi/2));
 
 sph_66=Spherical(1/scale2,(az_6+angle11).wrap(pi.neg,pi),(el_6+angle11).wrap((pi/2).neg,(pi/2)));
 
-magqx=((((Complex(cos(((sph6.theta)*mq).wrap(pi.neg,pi)),cos(((sph6.theta)*mq).wrap(pi.neg,pi))))*
+		magqx=((((Complex(cos(((sph6.theta)*mq).wrap(pi.neg,pi)),cos(((sph6.theta)*mq).wrap(pi.neg,pi))))*
 (Complex(sin((sph6.phi*(mq-1)).wrap((pi/2).neg,(pi/2))),sin((sph6.phi*(mq-1)).wrap((pi/2).neg,(pi/2)))))*
-(Complex(cos((sph6.phi).wrap((pi/2).neg,(pi/2))),cos((sph6.phi).wrap((pi/2).neg,(pi/2))))))).rho/(2.sqrt));
+										(Complex(cos((sph6.phi).wrap((pi/2).neg,(pi/2))),cos((sph6.phi).wrap((pi/2).neg,(pi/2))))))).rho/(2.sqrt));
 
 (Spherical(magqx,sph6.theta,sph6.phi).asCartesian
 +Spherical(magqx/scale2,sph_66.theta,sph_66.phi).asCartesian).asSpherical.rho
 
 };
-~magqx=~magqx++magnitudeqx;
+
+								~magqx=~magqx++magnitudeqx;
 angle11=(angle11+(2pi-(2pi/s))).wrap(0,2pi);
+
 };
+
 };
+
 angle1=(angle1+(2pi-(2pi/s))).wrap(0,2pi);
+
 };
+
 };
 
 angle=(angle+(2pi-(2pi/s))).wrap(0,2pi);
@@ -534,40 +555,41 @@ az6=0;el6=0;
 );
 (
 ~magxb = ~magx.collect { |val, i|
-theta = ~azimuth[i];
-phi = ~elevation[i];
+theta = ~az[i];
+phi = ~el[i];
 wave = amp*sin((waveFreq * theta) + (waveFreq * phi )- waveSpeed);
 val * wave;
 };
 ~magyb = ~magy.collect { |val, i|
-theta = ~azimuth[i];
-phi = ~elevation[i];
+theta = ~az[i];
+phi = ~el[i];
 wave = amp*sin((waveFreq * theta) + (waveFreq * phi )- waveSpeed);
 val * wave;
 };
 ~magzb = ~magz.collect { |val, i|
-theta = ~azimuth[i];
-phi = ~elevation[i];
+theta = ~az[i];
+phi = ~el[i];
 wave = amp*sin((waveFreq * theta) + (waveFreq * phi )- waveSpeed);
 val * wave;
 };
 );
 //~el=~el+mod_el;
 (~count.[0]*~count.[1]*~count.[2]*~count.[3]*~count.[4]*~count.[5]).do{
-az=~azimuth.[pla];
-el=~elevation.[pla]+mod_el;
+az=~az.[pla];
+el=~el.[pla]+mod_el;
 mag=(Cartesian(~magx.[pla],~magy.[pla],~magz.[pla]).rho)/2.sqrt;
 pla=pla+1;
 sph=Spherical(mag.wrap(mag*(4/5),mag),az,el.wrap((pi/16).neg,(pi/16))).asCartesian;
 sph=sph.rotateYZ(0.5pi).asSpherical;
-~az=~az++[sph.theta];
-~el=~el++[sph.phi];
+~azimuth=~azimuth++[sph.theta];
+~elevation=~elevation++[sph.phi];
 };
+
 //mk=(mk+(1200-(1200/1.6180339887499))).wrap(0,1200);
 (1/8).wait;
 };};
 );
-
+//~hz=Synth.new(\player).register;
 //~run.play;
 }.value);
 
