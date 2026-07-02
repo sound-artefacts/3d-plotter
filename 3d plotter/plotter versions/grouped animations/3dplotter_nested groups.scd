@@ -114,9 +114,9 @@ SynthDef.new(\coo,{
 az=Select.kr(cor,~az_im);
 el=Select.kr(cor,~el_im);
 p=Spherical(56,az,el);
-f1=2.pow(p.x.round(1)/56);
-f2=2.pow(p.y.round(1)/56);
-f3=2.pow(p.x.round(1)/56);
+f1=2.pow(p.x.round(1)/56)*10;
+f2=2.pow(p.y.round(1)/56)*10;
+f3=2.pow(p.x.round(1)/56)*10;
 Out.kr(~controlBusx.index, (SinOsc.kr(f1,f1.reciprocal*2pi,f1.reciprocal)));
 Out.kr(~controlBusy.index, (SinOsc.kr(f2,f2.reciprocal*2pi,f2.reciprocal)));
 Out.kr(~controlBusz.index, (SinOsc.kr(f3,f3.reciprocal*2pi,f3.reciprocal)));
@@ -125,21 +125,22 @@ Out.kr(~controlBusz.index, (SinOsc.kr(f3,f3.reciprocal*2pi,f3.reciprocal)));
 	)
 (
 ~thread=Synth(\coo);
+//~vertice=(~count.[0]*~count.[1]*~count.[2]*~count.[3]*~count.[4]*~count.[5]);
 ~vertice=(~count.[0]*~count.[1]*~count.[2]*~count.[3]*~count.[4]*~count.[5]);
 Routine({loop{
 	~thread.set(\cor,~vertice.rand);
-        (0.1).wait; // frame duration
+        (0.25).wait; // frame duration
 };
 }).play;
 )
 ////plotter
 (
-var w, u,size=1000,diameter=300,n=0,m=0,k=0;
+var w, u,size=1000,diameter=360,n=0,m=0,k=0;
 var r_az = 0.0,r_el = 0.0,az,el,cp,protaz,protel;
 var point,perspective,dist=600,mag=1;
 var rx = 0.0,ry = 0.0,rz = 0.0;
 var plane,pointx,pointy;
-var d_o=2,lined=3,run = true;
+var d_o=3,lined=20,run = true,tilt=0.1pi;
 
 w = Window("3d Plotter", Rect(100,100,size,size));
 v = UserView(w, w.view.bounds).background_(Color.black);
@@ -174,7 +175,7 @@ point = Spherical(diameter*mag,protaz,protel).asCartesian;
 
 ///rotations
 point=point.rotateYZ(rx).rotateXZ(ry).rotateXY(rz);
-point=point.rotateYZ(0.1pi);
+point=point.rotateYZ(tilt);
 
 plane=Complex(point.x,point.y);
 //////remaping
@@ -273,7 +274,7 @@ rx=0;
 ry=(ry + ~rotation).wrap(0,2pi);
 rz=0;
 {v.refresh}.defer;
-(1/8).wait;
+(1/16).wait;
 
 };
 }).play;

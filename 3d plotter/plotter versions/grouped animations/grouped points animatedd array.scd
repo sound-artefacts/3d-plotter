@@ -94,7 +94,7 @@ SynthDef.new(\player,{
 }).add;
 	);
 
-	~count=[2,2,2,2,2,2];
+	~count=[2,3,2,3,2,3];
 	(
 ~distortion=10;
 ~gate=10000;
