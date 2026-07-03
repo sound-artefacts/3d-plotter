@@ -79,7 +79,7 @@ word.do({|i| ~lseq = ~lseq ++ dictnotes[i.asSymbol];});
 {
 var  n=1.neg,p,a,b,c,d;
 ////modulation random nested filtering
-//1.do{~lseq=~lseq*~lseq.size.collect{2.rand}};
+4.do{~lseq=~lseq*~lseq.size.collect{2.rand}};
 ////image based filtering
 ~lseq=~lseq.size.collect{
 n=n+1;
@@ -114,27 +114,27 @@ SynthDef.new(\coo,{
 az=Select.kr(cor,~az_im);
 el=Select.kr(cor,~el_im);
 p=Spherical(56,az,el);
-f1=2.pow(p.x.round(1)/56)*(60/8);
-f2=2.pow(p.y.round(1)/56)*(60/8);
-f3=2.pow(p.x.round(1)/56)*(60/8);
+f1=2.pow(p.x.round(1)/56)*3;
+f2=2.pow(p.y.round(1)/56)*3;
+f3=2.pow(p.x.round(1)/56)*3;
 Out.kr(~controlBusx.index, (SinOsc.kr(f1,f1.reciprocal*2pi,f1.reciprocal)));
 Out.kr(~controlBusy.index, (SinOsc.kr(f2,f2.reciprocal*2pi,f2.reciprocal)));
 Out.kr(~controlBusz.index, (SinOsc.kr(f3,f3.reciprocal*2pi,f3.reciprocal)));
 
 }).add;
 	)
+
 ////plotter
 (
-var w, u,size=1000,diameter=500,n=0,m=0,k=0;
+var w, u,size=1000,diameter=360,n=0,m=0,k=0;
 var r_az = 0.0,r_el = 0.0,az,el,cp,protaz,protel;
 var point,perspective,dist=600,mag=1;
-var rx = 0.0,ry = 0.0,rz = 0.0;
+var rx = 0.0,ry = 0.0,rz = 0.0,rate=0.1;
 var plane,pointx,pointy;
-var d_o=100,lined=5,run = true,tilt=0.1pi;
+var d_o=100,lined=8,run = true,tilt=0.1pi;
 
 w = Window("3d Plotter", Rect(100,100,size,size));
 v = UserView(w, w.view.bounds).background_(Color.black);
-
 (
 {
 ~thread=Synth(\coo);
@@ -162,11 +162,11 @@ n=0;
 //(~controlBusy.getSynchronous*(1/(1+~controlBusz.getSynchronous))));
 
 (~vertice).do {
-//az=~az.[n];el=~el.[n];
-az=~azimuth.[n];el=~elevation.[n];
+az=~az.[n];el=~el.[n];
+//az=~azimuth.[n];el=~elevation.[n];
 ///spherical harmonics
 //mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt));
-mag=(Cartesian(0,0,~magz.[n]).rho/(2.sqrt));
+//mag=(Cartesian(0,0,~magz.[n]).rho/(2.sqrt));
 ///complex spherical harmonics
 ///mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt))+(Cartesian(~qx.[n],~qy.[n],0).rho/(2.sqrt));
 //mag=mag.wrap(mag*(4/5),mag);
@@ -243,12 +243,12 @@ var m = n + 1;
 //automaton threading
 ~sseq=((~controlBusx.getSynchronous*
 ~controlBusz.getSynchronous)+(~controlBusy.getSynchronous*
-~controlBusz.getSynchronous)).round(0.1);
-if( (~sseq == 0) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) }and: {~lseq.[k] == 0})
+~controlBusz.getSynchronous)).round(rate);
+if( (~sseq == 0) and: { ~point_cloud[n].dist(~point_cloud[m]) < (diameter/lined) })
 {Pen.line( ~point_cloud.[n], ~point_cloud.[m])};
 ///{Pen.quadCurveTo( ~point_cloud.[m], ~point_cloud.[n])};
 
-Pen.stroke;
+Pen.fillStroke;
 m=m+1;
 k=k+1
 };
@@ -258,7 +258,7 @@ k=k+1
 	)
 };
 
-{ while { run } {v.background_(Color.black); v.refresh; (0.01).wait } }.fork(AppClock);
+{ while { run } {v.background_(Color.black); v.refresh; (0.001).wait } }.fork(AppClock);
 
 w.front;
 //~hz=Synth.new(\player).register;
@@ -281,7 +281,7 @@ rz = 0;
 rx=0;
 ry=(ry + ~rotation).wrap(0,2pi);
 rz=0;
-)*/;
+)*/
 {v.refresh}.defer;
 (1/8).wait;
 
