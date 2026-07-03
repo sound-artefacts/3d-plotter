@@ -14,7 +14,7 @@ s.makeGui(w);
 //s.freqscope;
 //s.scope;
 );
-~img_print = Image.open("/Users/rohifes/Documents/3d plotter/sound engine/synthf/image1.jpg");///////////////paste image image1.jpg
+~img_print = Image.open("/Users/rohifes/Documents/Literary/Portfolio/SUPERCOLLIDER/2026/fusion/3d plotter/sound engine/synthf/image1.jpg");///////////////paste image image1.jpg
 s.waitForBoot{
 Tdef(\drone, {
 //~controlBus = Bus.control(s, 1);
@@ -322,16 +322,16 @@ g_ch4=
 (sig3.abs.range(0.001,1)*sin(pphi)*
  sig3.range(0.001,1)*sin(Select.kr(s4,~el)*a4));
 
-/*(
+(
 Out.ar(busArray.[0],LeakDC.ar(sig1*env));
 Out.ar(busArray.[1],LeakDC.ar(sig2*env));
 Out.ar(busArray.[2],LeakDC.ar(sig3*env));
-)*/
+);
 //perspective
-(
+/*(
 Out.ar(busArray.[0],LeakDC.ar(sig1*env*(gain/(gain+(sig3*env)))));
 Out.ar(busArray.[1],LeakDC.ar(sig2*env*(gain/(gain+(sig3*env)))));
-);
+)*/;
 ///comment out the above parentheses and uncomment the below to use the synth on
 ///threefold speaker wavefield quad spat (12ch)/// to puput stereo sets (x,y) not use z channel as ouput (2,5,etc), sig3.
 /*(
@@ -406,9 +406,9 @@ bank.do{
 };
 
 n=0;
-rhythm.do{ dur=dur++Complex(dx.[n],dy.[n]).theta*dz.[n]; n=n+1;}; n=1;
-(rhythm-1).do{ dur1=dur1++Complex(dx.[n],dy.[n]).theta*dz.[n]; n=n+1;}; n=1;
-dur2=[Complex(dx.[4],dy.[4]).theta*dz.[4]]++dur1.reverse;
+rhythm.do{ dur=dur++((dx.[n]*dz.[n])+(dy.[n]*dz.[n])); n=n+1;}; n=1;
+(rhythm-1).do{ dur1=dur1++((dx.[n]*dz.[n])+(dy.[n]*dz.[n])); n=n+1;}; n=1;
+dur2=[((dx.[4]*dz.[4])+(dy.[4]*dz.[4]))]++dur1.reverse;
 ~dur=~dur++dur++dur2;
 }.value);
 ({
