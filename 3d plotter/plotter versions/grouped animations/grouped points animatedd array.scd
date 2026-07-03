@@ -29,14 +29,14 @@ s.waitForBoot{
 ~curve=16;
 {
 var signal,wt;
-		signal=Env([10000/2,1000/2,100/2,10/2,10/2],[4,2,1,8],[~curve.neg,~curve,~curve.neg,~curve]);
+		signal=Env([1,10,100,1000,1000],[4,2,1,8],[~curve.neg,~curve,~curve.neg,~curve]);
 	wt = signal.asSignal(1024).asWavetable;
 ~scale2.loadCollection(wt);
 //signal.plot;
 		}.value;
 		{
 var signal,wt;
-		signal=Env([1,10/2,100/2,1000/2,1000/2],[4,2,1,8],[~curve.neg,~curve,~curve.neg,~curve]);
+		signal=Env([1000,100,10,1,1],[4,2,1,8],[~curve.neg,~curve,~curve.neg,~curve]);
 	wt = signal.asSignal(1024).asWavetable;
 ~scale1.loadCollection(wt);
 //signal.plot;
@@ -94,7 +94,7 @@ SynthDef.new(\player,{
 }).add;
 	);
 
-	~count=[2,3,2,3,2,3];
+	~count=[2,2,2,2,2,2];
 	(
 ~distortion=10;
 ~gate=10000;
