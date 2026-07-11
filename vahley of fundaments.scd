@@ -103,7 +103,7 @@ wt = signal.asSignal(1024).asWavetable;
 }.value;
 {
 var signal,wt;
-signal=Env([0.6,1,10000],[1,1],[128,16]);
+signal=Env([1.5,1.5,10000],[1,1],[128,16]);
 wt = signal.asSignal(1024).asWavetable;
 ~ps.loadCollection(wt);
 //signal.plot;
@@ -531,17 +531,25 @@ word.do({|i| ~lseq = ~lseq ++ dictnotes[i.asSymbol];});
 ~lseq.size;////check for sequence size >= vertices count
 4.do{~lseq=~lseq*~lseq.size.collect{2.rand}};
 }.value);*/
-
+(
+{
+Routine({loop{
+	~animation.set(\cor,~vertices.rand);
+        (5).wait; // frame duration
+};
+}).play;
+}.defer
+);
 
 ///image plotter
 ({
-var w,u,size=1000,diameter=25,n=0,m=0,k=0;
+var w,u,size=1000,diameter=60,n=0,m=0,k=0;
 var r_az = 0.0,r_el = 0.0,az,el,cp,protaz,protel;
-var point,perspective,dist=300,depth=2,mag=1;
+var point,perspective,dist=200,depth=2,mag=1;
 var rx = 0.0,ry = 0.0,rz = 0.0,rate=0.01;
 var plane,pointx,pointy;
-var d_o=1,lined=3,run = true,tilt=0.15pi;
-var wave=60,sph;
+var d_o=1,lined=8,run = true,tilt=0.15pi;
+var wave=25,sph;
 ~vertice=(~count.[0]*~count.[1]*~count.[2]*~count.[3]*~count.[4]*~count.[5]);
 w = Window("3d Plotter", Rect(100,100,size,size));
 v = UserView(w, w.view.bounds).background_(Color.black);
@@ -553,7 +561,7 @@ d_o=~controlBus_points.getSynchronous;
 n=0;
 (~vertice).do {
 az=~az.[n];el=~el.[n];
-mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt));
+//mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt));
 ///mag=(Cartesian(~magx.[n],~magy.[n],~magz.[n]).rho/(2.sqrt))+(Cartesian(~qx.[n],~qy.[n],0).rho/(2.sqrt));
 ///cloud assignment and distortion
 protaz=(az + r_az).wrap(pi.neg,pi);
@@ -616,7 +624,6 @@ m=m+1;k=k+1
 w.front;
 Routine({
 inf.do {
-//~animation.set(\cor,~vertices.rand);
 r_az = r_az + 0;
 r_el = r_el + 0;
 (
@@ -633,7 +640,6 @@ rz=(rz +~controlBus_r.getSynchronous).wrap(0,2pi);
 }
 )
 
-//~animation.set(\cor,~vertices.rand);
 /////sound
 /*(
 ~ne=1.neg;~arraye=56.collect{~ne=~ne+1;2.pow(~ne/56)};

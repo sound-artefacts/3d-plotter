@@ -116,7 +116,7 @@ wt = signal.asWavetable;
 );
 (
 ~note=21;
-~note10=10;
+~note10=21;
 (
 {
 var nn=1.neg;
@@ -155,10 +155,10 @@ s3=Rand(0, ~vertices-1).round(1).asInteger;s4=Rand(0, ~vertices-1).round(1).asIn
 envf=EnvGen.ar(Env.new([0,0,pi,pi,2pi],[(dicay/2),(attack/2),(dicay/2),(attack/2)]),doneAction:0);
 
 sustain=0.25;
-key=2.pow(Select.kr(au,Select.kr(sb,~scale10)).asInteger/12);
+key=Select.kr(sb,~scale10);
 
-attack=attack*(key);
-dicay=dicay*(key);
+//attack=attack*(key);
+//dicay=dicay*(key);
 ////signal envelope
 signal = Signal.sineFill(~signalSizee, ~arraye, [0]);
 signal = signal.rotate(signal.size div: 2);
@@ -211,11 +211,11 @@ b_x=2.pow(Spherical(sc,Select.kr(timbre,~az),Select.kr(timbre,~el)).x.round(1)/1
 b_y=2.pow(Spherical(sc,Select.kr(timbre,~az),Select.kr(timbre,~el)).y.round(1)/16256);
 b_z=2.pow(Spherical(sc,Select.kr(timbre,~az),Select.kr(timbre,~el)).z.round(1)/16256);
 
-s_x=2.pow(Select.kr(mps_x.round(1).abs,~scale).asInteger /12);
-s_y=2.pow(Select.kr(mps_y.round(1).abs,~scale).asInteger /12);
-s_z=2.pow(Select.kr(mps_z.round(1).abs,~scale).asInteger /12);
+s_x=2.pow(Select.kr(mps_x.round(1).abs,key).asInteger /12);
+s_y=2.pow(Select.kr(mps_y.round(1).abs,key).asInteger /12);
+s_z=2.pow(Select.kr(mps_z.round(1).abs,key).asInteger /12);
 
-fund=fund*key;
+fund=fund;
 
 mod_x=mpf_x;
 mod_y=mpf_y;
@@ -224,9 +224,9 @@ mod_z=mpf_z;
 freq1=(fund)*b_x*s_x;
 freq2=(fund)*b_y*s_y;
 freq3=(fund)*b_z*s_z;
-amp1=b_x.reciprocal*expansion.reciprocal*s_x.reciprocal*key.reciprocal;
-amp2=b_y.reciprocal*expansion.reciprocal*s_y.reciprocal*key.reciprocal;
-amp3=b_z.reciprocal*expansion.reciprocal*s_z.reciprocal*key.reciprocal;
+amp1=b_x.reciprocal*expansion.reciprocal*s_x.reciprocal;
+amp2=b_y.reciprocal*expansion.reciprocal*s_y.reciprocal;
+amp3=b_z.reciprocal*expansion.reciprocal*s_z.reciprocal;
 
 ///simple  az/el wave phase relations
 phasex=b_x.reciprocal*s_x.reciprocal*pi;
@@ -359,7 +359,7 @@ Out.ar(busArray.[11],LeakDC.ar(sig3*env*g_ch4));
 5.wait;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////sequencer,pattern
 (
-({
+/*({
 var m1=1.neg, m2=1.neg;
 var m3=1.neg,n=0,bank=5,rhythm=4,time=32.reciprocal,beat=1;
 var durx=[],dury=[],durz=[],durx1=[],dury1=[],durz1=[];
@@ -415,6 +415,69 @@ rhythm.do{ dur=dur++((dx.[n]*dz.[n])+(dy.[n]*dz.[n])); n=n+1;}; n=1;
 (rhythm-1).do{ dur1=dur1++((dx.[n]*dz.[n])+(dy.[n]*dz.[n])); n=n+1;}; n=1;
 dur2=[((dx.[4]*dz.[4])+(dy.[4]*dz.[4]))]++dur1.reverse;
 ~dur=~dur++dur++dur2;
+}.value)*/
+({
+var m1=1.neg, m2=1.neg;
+var m3=1.neg,n=0,bank=5,rhythm=4,time=32.reciprocal,beat=1;
+var durx=[],dury=[],durz=[],durx1=[],dury1=[],durz1=[];
+var dx=[],dy=[],dz=[],bx,by,bz,durx2,dury2,durz2;
+
+~azr=[45.degrad,135.neg.degrad,45.neg.degrad,135.degrad];
+~elr=[35.264390.neg.degrad,35.264390.neg.degrad,35.264390.degrad,35.264390.degrad];
+~r=0;~r1=0;~r2=0;
+
+~dur=[];
+
+bank.do{
+    m1=m2=m3=~vertices.rand;
+
+    bx=1.collect{
+        var az, el, x, y, z;
+        az = ~az.[m1];
+        el = ~el.[m1];
+        x = beat * cos(el) * cos(az);
+        y = beat * cos(el) * sin(az);
+        z = beat * sin(el);
+        2.pow(x).round(time)};
+
+   by=1.collect{
+        var az, el, x, y, z;
+        az = ~az.[m2];
+        el = ~el.[m2];
+        x = beat * cos(el) * cos(az);
+        y = beat * cos(el) * sin(az);
+        z = beat * sin(el);
+        2.pow(y).round(time)};
+
+    bz=1.collect{
+        var az, el, x, y, z;
+        az = ~az.[m3];
+        el = ~el.[m3];
+        x = beat * cos(el) * cos(az);
+        y = beat * cos(el) * sin(az);
+        z = beat * sin(el);
+        2.pow(z).round(time)};
+
+    m1=1.neg; m2=1.neg; m3=1.neg;
+
+    dx=dx++bx;
+    dy=dy++by;
+    dz=dz++bz;
+
+    bx=[]; by=[]; bz=[];
+};
+
+n=0;
+rhythm.do{ durx=durx++dx.[n]; n=n+1;}; n=0;
+rhythm.do{ dury=dury++dy.[n]; n=n+1;}; n=0;
+rhythm.do{ durz=durz++dz.[n]; n=n+1;}; n=1;
+(rhythm-1).do{ durx1=durx1++dx.[n]; n=n+1;}; n=1;
+(rhythm-1).do{ dury1=dury1++dy.[n]; n=n+1;}; n=1;
+(rhythm-1).do{ durz1=durz1++dz.[n]; n=n+1;}; n=0;
+durx2=[dx.[4]]++durx1.reverse;
+dury2=[dy.[4]]++dury1.reverse;
+durz2=[dz.[4]]++durz1.reverse;
+~dur=~dur++durx++dury++durz++durx2++dury2++durz2;
 }.value);
 ({
 var dict = IdentityDictionary[\A -> "AB", \B -> "A"];
@@ -552,7 +615,7 @@ value=obj.value.linexp(0,1,0.01,8).postln;
 background_(Color.black).action_({
 arg obj;
 var value;
-value=obj.value.linexp(0,1,1/16,16).round(1/64).postln;
+value=obj.value.linexp(0,1,1/16,32).round(1/64).postln;
 TempoClock.default.tempo_(value);
 ~log.(value.asString);
 });
